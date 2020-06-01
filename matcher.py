@@ -47,7 +47,7 @@ def find_match(events: Set[Event], orders: Set[Order]) -> Optional[Set[Order]]:
 
             q_orders.append(maxneg[negation_event])
             sum_q_i += maxneg[negation_event].bid
-            if sum_q_i > len(events):
+            if sum_q_i + disjunction.bid > len(events):
                 return set([disjunction] + q_orders)
     
     return None
@@ -56,19 +56,21 @@ A='A'
 B='B'
 EVENTS={A,B}
 
-print(find_match(EVENTS, {
-    Order(DisjunctionAsset(frozenset({A,B})), .5),
-    Order(NegationAsset(A), .05),
-    Order(NegationAsset(A), .2),
-    Order(NegationAsset(B), .4),
-}))
+
 assert find_match(EVENTS, {
     Order(DisjunctionAsset(frozenset({A,B})), .5),
     Order(NegationAsset(A), .05),
-    Order(NegationAsset(A), .2),
-    Order(NegationAsset(B), .4),
+    Order(NegationAsset(A), .8),
+    Order(NegationAsset(B), .8),
 }) == {
-    Order(NegationAsset(A), .2),
-    Order(NegationAsset(B), .4),
+    Order(NegationAsset(A), .8),
+    Order(NegationAsset(B), .8),
     Order(DisjunctionAsset(frozenset({A,B})), .5),
 }
+
+assert find_match(EVENTS, {
+    Order(DisjunctionAsset(frozenset({A,B})), .5),
+    Order(NegationAsset(A), .05),
+    Order(NegationAsset(A), .69),
+    Order(NegationAsset(B), .8),
+}) is None
